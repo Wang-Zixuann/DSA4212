@@ -6,10 +6,11 @@ from torch.autograd import Variable
 class Embedding(nn.Module):
     def __init__(self,embedding_d:int,vocab_size:int):
         super(Embedding,self).__init__()
-        self.embed = nn.Embedding(vocab_size,embedding_d)
+        self.embed = nn.Embedding(num_embeddings=vocab_size,embedding_dim=embedding_d)
         self.embedding_d = embedding_d
     
     def forward(self,x):
+        # print("input of embedding shape: ",x.shape)
         return self.embed(x) * math.sqrt(self.embedding_d)
     
 class PositionEncoding(nn.Module):
@@ -29,6 +30,9 @@ class PositionEncoding(nn.Module):
         self.register_buffer("position_encoding",position_encoding)
     
     def forward(self,x):
-        x = x + Variable(self.position_encoding[:,:x.size()[1]],
+        # print("x shape: ",x.shape)
+        pe_value = Variable(self.position_encoding[:,:x.shape[1],:],
                          requires_grad=False)
+        # print("position encoding shape: ",pe_value.shape)
+        x = x + pe_value
         return self.dropout(x)

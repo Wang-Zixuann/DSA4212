@@ -6,9 +6,12 @@ import torch.nn.functional as F
 
 # attention for one head
 def attention(q,k,v,mask=None,dropout=None):
+    # print("q shape: ",q.shape)
     dimension = q.size()[-1]
     score = torch.matmul(q,k.transpose(-2,-1)) / math.sqrt(dimension)
     if mask is not None:
+        # print("score shape: ",score.shape)
+        # print("mask shape: ",mask.shape) 
         score = score.masked_fill(mask==0,1e-9)
     attention_score = F.softmax(score,dim=-1)
     if dropout is not None:
@@ -27,13 +30,14 @@ class MultiHeadAttention(nn.Module):
         self.dropout = nn.Dropout(dropout)
 
     def forward(self,q,k,v,mask=None):
-        if mask is not None:
-            mask = mask.unsqueeze(1) # [n_batch x seq x d x d] -> [n_batch x 1 x seq x d x d]
+        # if mask is not None:
+        #     mask = mask.unsqueeze(1) # [n_batch x seq] -> [n_batch x 1 x seq x d x d]
         
         batch_size = q.size()[0]
 
         # [n_batch x seq x d ] -> [n_batch x head_n x seq x d/head_n]
-        q,k,v = [ linear(x).view(batch_size,-1,self.head_n,self.embeding_d).transpose(1,2)  for linear ,x in zip([self.q_w,self.k_w,self.v_w],[q,k,v])]
+        # print("original q shape: ",q.shape)
+        q,k,v = [ linear(x).view(batch_size,-1,self.head_n,self.embeding_d//self.head_n).transpose(1,2)  for linear ,x in zip([self.q_w,self.k_w,self.v_w],[q,k,v])]
 
         # x: [n_batch x head_n x seq x d/head_n]
         x, self.attention_score = attention(q,k,v,mask,self.dropout)

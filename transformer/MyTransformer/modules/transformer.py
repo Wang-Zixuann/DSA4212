@@ -1,3 +1,4 @@
+import os
 import torch.nn as nn
 import torch.nn.functional as F
 from MyTransformer.modules.attention import MultiHeadAttention
@@ -46,9 +47,15 @@ class Generator(nn.Module):
 class Transformer(nn.Module):
     def __init__(self,embedding_d,ffn_d,head_n,layer_n,vocab_size,dropout=0.1):
         super(Transformer,self).__init__()
+        self.init_parameters = dict(embedding_d=embedding_d,
+                                    ffn_d=ffn_d,
+                                    head_n=head_n,
+                                    layer_n=layer_n,
+                                    vocab_size=vocab_size,
+                                    dropout=dropout)
         self.encoder_list = nn.ModuleList([EncoderLayer(embedding_d,ffn_d,head_n,dropout) for _ in range(layer_n)])
         self.decoder_list = nn.ModuleList([DecoderLayer(embedding_d,ffn_d,head_n,dropout) for _ in range(layer_n)])
-        self.embed = nn.Sequential(Embedding(vocab_size,embedding_d),
+        self.embed = nn.Sequential(Embedding(embedding_d,vocab_size),
                                    PositionEncoding(embedding_d,vocab_size,dropout))
         # self.embed = Embedding(vocab_size,embedding_d)
         self.generator = Generator(embedding_d,vocab_size)
@@ -61,7 +68,7 @@ class Transformer(nn.Module):
     def encoder(self,input,mask=None):
         input = self.embed(input)
         # print("embedding output for encoder: ",input)
-        print("embedding output size for encoder: ",input.size())
+        # print("embedding output size for encoder: ",input.size())
         for layer in self.encoder_list:
             input = layer(input,mask)
         return input
@@ -77,3 +84,8 @@ class Transformer(nn.Module):
                 decoder_mask=None,encoder_mask=None):
         encoder_output = self.encoder(encoder_intput,encoder_mask)
         return self.decoder(decoder_input,encoder_output,decoder_mask,encoder_mask)
+
+    def save(self,save_path:str):
+        import json
+        with open(os.path.join(save_path,"model_parameters.json"),"w") as f:
+            json.dump(self.init_parameters,f)
