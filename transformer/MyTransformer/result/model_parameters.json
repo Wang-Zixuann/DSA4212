@@ -1,0 +1,1 @@
+{"embedding_d": 128, "ffn_d": 256, "head_n": 2, "layer_n": 3, "vocab_size": 13, "dropout": 0.1}
