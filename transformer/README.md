@@ -19,11 +19,5 @@ Becase the structures and details have been explored a lot, I will list the impl
 ## Experiments
 All experiments are finished in jupyter notebook in order to convinently save the middle results and check the validation.
 
-- **test experiment**: check the implementation of MyTransformer and mainly check the dimension of middle process.
-
-- **experiment 1**: equence Reversal: reversing a sequences of numbers, [1,3,2,4,5,3] -> [3,5,4,2,3,1]
+- **experiment**: equence Reversal: reversing a sequences of numbers, [1,3,2,4,5,3] -> [3,5,4,2,3,1]
     1. In this experiment, every ouput only needs to focus on one input number and output order. Therefore, it could only require lower context window than the whole context. 
-    2. We will try to use 'distance-enhanced' attention socres to learn this task quicker.
-
-- **experiment 2**: equence Reversal for negative number and big numbers: reversing a sequences of numbers, [1,-3,2,435,5,3] -> [3,5,435,2,-3,1].
-    1. Compared to the first experiment, the transformer need to recognize the minus '-' and the big number, so there is a harder version and we hope to implement it by adding the special word <delimiter>
